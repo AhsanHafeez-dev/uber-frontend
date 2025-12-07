@@ -4,7 +4,7 @@ import { io } from 'socket.io-client';
 
 export const SocketContext = createContext();
 
-const socket = io(`http://localhost:3000`); // Replace with your server URL
+const socket = io(`https://9a9c06c61094.ngrok-free.app/:3000`); // Replace with your server URL
 
 const SocketProvider = ({ children }) => {
     useEffect(() => {
