@@ -1,19 +1,34 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom' // Added useLocation
 import { useEffect, useContext } from 'react'
-import { SocketContext } from '../context/SocketContext'
+import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import LiveTracking from '../components/LiveTracking'
 
 const Riding = () => {
     const location = useLocation()
     const { ride } = location.state || {} // Retrieve ride data
-    const { socket } = useContext(SocketContext)
     const navigate = useNavigate()
 
-    socket.on("ride-ended", () => {
-        navigate('/home')
-    })
+    useEffect(() => {
+        if (ride?._id) {
+            const interval = setInterval(async () => {
+                try {
+                    const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/${ride._id}`, {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('token')}`
+                        }
+                    })
+                    if (response.data.status === 'completed') {
+                        navigate('/home')
+                    }
+                } catch (err) {
+                    console.error(err)
+                }
+            }, 4000)
+            return () => clearInterval(interval)
+        }
+    }, [ride, navigate])
 
 
     return (

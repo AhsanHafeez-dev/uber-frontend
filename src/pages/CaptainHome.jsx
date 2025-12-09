@@ -6,38 +6,38 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import ConfirmRidePopUp from '../components/ConfirmRidePopUp'
 import { useEffect, useContext } from 'react'
-import { SocketContext } from '../context/SocketContext'
+
 import { CaptainDataContext } from '../context/CapatainContext'
 import axios from 'axios'
 
 const CaptainHome = () => {
 
-    const [ ridePopupPanel, setRidePopupPanel ] = useState(false)
-    const [ confirmRidePopupPanel, setConfirmRidePopupPanel ] = useState(false)
+    const [ridePopupPanel, setRidePopupPanel] = useState(false)
+    const [confirmRidePopupPanel, setConfirmRidePopupPanel] = useState(false)
 
     const ridePopupPanelRef = useRef(null)
     const confirmRidePopupPanelRef = useRef(null)
-    const [ ride, setRide ] = useState(null)
+    const [ride, setRide] = useState(null)
 
-    const { socket } = useContext(SocketContext)
+
     const { captain } = useContext(CaptainDataContext)
 
     useEffect(() => {
-        socket.emit('join', {
-            userId: captain._id,
-            userType: 'captain'
-        })
+        console.log("Ride State Updated:", ride)
+    }, [ride])
+
+    useEffect(() => {
         const updateLocation = () => {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(position => {
-
-                    socket.emit('update-location-captain', {
-                        userId: captain._id,
-                        location: {
-                            ltd: position.coords.latitude,
-                            lng: position.coords.longitude
+                    axios.patch(`${import.meta.env.VITE_BASE_URL}/captains/update-location`, {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    }, {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('token')}`
                         }
-                    })
+                    }).catch(err => console.error(err))
                 })
             }
         }
@@ -45,15 +45,27 @@ const CaptainHome = () => {
         const locationInterval = setInterval(updateLocation, 10000)
         updateLocation()
 
-        // return () => clearInterval(locationInterval)
+        const rideInterval = setInterval(async () => {
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/new-rides`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                })
+                if (response.data && response.data.length > 0) {
+                    setRide(response.data[0]) // Assuming one ride for now or last is relevant? Logic might need adjustment but sticking to simple swap.
+                    setRidePopupPanel(true)
+                }
+            } catch (err) {
+                console.error(err)
+            }
+        }, 4000)
+
+        return () => {
+            clearInterval(locationInterval)
+            clearInterval(rideInterval)
+        }
     }, [])
-
-    socket.on('new-ride', (data) => {
-
-        setRide(data)
-        setRidePopupPanel(true)
-
-    })
 
     async function confirmRide() {
 
@@ -69,6 +81,8 @@ const CaptainHome = () => {
             }
         })
 
+        console.log("Confirm response:", response.data)
+        setRide(response.data)
         setRidePopupPanel(false)
         setConfirmRidePopupPanel(true)
 
@@ -85,7 +99,7 @@ const CaptainHome = () => {
                 transform: 'translateY(100%)'
             })
         }
-    }, [ ridePopupPanel ])
+    }, [ridePopupPanel])
 
     useGSAP(function () {
         if (confirmRidePopupPanel) {
@@ -97,7 +111,7 @@ const CaptainHome = () => {
                 transform: 'translateY(100%)'
             })
         }
-    }, [ confirmRidePopupPanel ])
+    }, [confirmRidePopupPanel])
 
     return (
         <div className='h-screen'>

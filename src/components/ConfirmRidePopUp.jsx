@@ -4,11 +4,17 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 
 const ConfirmRidePopUp = (props) => {
-    const [ otp, setOtp ] = useState('')
+    const [otp, setOtp] = useState('')
     const navigate = useNavigate()
 
     const submitHander = async (e) => {
         e.preventDefault()
+
+        if (!props.ride?._id) {
+            console.error("Ride data missing. Props:", props.ride)
+            alert("Error: Ride data missing! Check console.")
+            return
+        }
 
         const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/start-ride`, {
             params: {

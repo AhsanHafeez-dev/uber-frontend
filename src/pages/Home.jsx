@@ -8,55 +8,89 @@ import VehiclePanel from '../components/VehiclePanel';
 import ConfirmRide from '../components/ConfirmRide';
 import LookingForDriver from '../components/LookingForDriver';
 import WaitingForDriver from '../components/WaitingForDriver';
-import { SocketContext } from '../context/SocketContext';
+
 import { useContext } from 'react';
 import { UserDataContext } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import LiveTracking from '../components/LiveTracking';
 
 const Home = () => {
-    const [ pickup, setPickup ] = useState('')
-    const [ destination, setDestination ] = useState('')
-    const [ panelOpen, setPanelOpen ] = useState(false)
+    const [pickup, setPickup] = useState('')
+    const [destination, setDestination] = useState('')
+    const [panelOpen, setPanelOpen] = useState(false)
     const vehiclePanelRef = useRef(null)
     const confirmRidePanelRef = useRef(null)
     const vehicleFoundRef = useRef(null)
     const waitingForDriverRef = useRef(null)
     const panelRef = useRef(null)
     const panelCloseRef = useRef(null)
-    const [ vehiclePanel, setVehiclePanel ] = useState(false)
-    const [ confirmRidePanel, setConfirmRidePanel ] = useState(false)
-    const [ vehicleFound, setVehicleFound ] = useState(false)
-    const [ waitingForDriver, setWaitingForDriver ] = useState(false)
-    const [ pickupSuggestions, setPickupSuggestions ] = useState([])
-    const [ destinationSuggestions, setDestinationSuggestions ] = useState([])
-    const [ activeField, setActiveField ] = useState(null)
-    const [ fare, setFare ] = useState({})
-    const [ vehicleType, setVehicleType ] = useState(null)
-    const [ ride, setRide ] = useState(null)
+    const [vehiclePanel, setVehiclePanel] = useState(false)
+    const [confirmRidePanel, setConfirmRidePanel] = useState(false)
+    const [vehicleFound, setVehicleFound] = useState(false)
+    const [waitingForDriver, setWaitingForDriver] = useState(false)
+    const [pickupSuggestions, setPickupSuggestions] = useState([])
+    const [destinationSuggestions, setDestinationSuggestions] = useState([])
+    const [activeField, setActiveField] = useState(null)
+    const [fare, setFare] = useState({})
+    const [vehicleType, setVehicleType] = useState(null)
+    const [ride, setRide] = useState(null)
 
     const navigate = useNavigate()
 
-    const { socket } = useContext(SocketContext)
+
     const { user } = useContext(UserDataContext)
 
     useEffect(() => {
-        socket.emit("join", { userType: "user", userId: user._id })
-    }, [ user ])
+        let interval;
+        if (waitingForDriver || vehicleFound) { // Start polling when waiting or looking for driver if we had a ride object? Actually, createRide sets vehicleFound to true. waitingForDriver is set when ride is confirmed.
+            // We need ride object to poll. ride is set when ride-confirmed happens or we might need it earlier.
+            // Actually, createRide returns a ride object? No, it returns success but we don't store ride ID in state yet probably?
+            // Checking createRide in Home.jsx: it just calls POST /rides/create. It doesn't set `ride` state in line 186. But `findTrip` sets fare.
+            // Ah, `ride-confirmed` listener sets `ride` state. So we need to poll for status 'accepted' if we created a ride?
+            // But we don't have ride ID until we create it.
+            // Wait, `createRide` function in line 186 calls `/rides/create`. It doesn't capture the response fully to set state?
+            // Let's look at `createRide` in `Home.jsx` again. It has no return value used.
+            // Modifications needed: Update `createRide` to save the ride object (checking backend, /rides/create returns the ride).
+        }
+    }, [waitingForDriver, vehicleFound])
 
-    socket.on('ride-confirmed', ride => {
+    // Changing approach:
+    // 1. modify createRide to setRide(response.data)
+    // 2. Poll for ride status updates based on ride._id if ride is set.
 
+    // Let's implement this gradually. First, remove socket listeners and imports.
+    // I will replace this whole block with the polling logic, assuming I will fix createRide next.
 
-        setVehicleFound(false)
-        setWaitingForDriver(true)
-        setRide(ride)
-    })
+    useEffect(() => {
+        if (ride?._id) {
+            const interval = setInterval(async () => {
+                try {
+                    const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/${ride._id}`, {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('token')}`
+                        }
+                    })
+                    const updatedRide = response.data
 
-    socket.on('ride-started', ride => {
-        console.log("ride")
-        setWaitingForDriver(false)
-        navigate('/riding', { state: { ride } }) // Updated navigate to include ride data
-    })
+                    if (updatedRide.status === 'accepted') {
+                        setVehicleFound(false)
+                        setWaitingForDriver(true)
+                        setRide(updatedRide)
+                    }
+
+                    if (updatedRide.status === 'ongoing') {
+                        setWaitingForDriver(false)
+                        navigate('/riding', { state: { ride: updatedRide } })
+                    }
+
+                } catch (err) {
+                    console.error(err)
+                }
+            }, 4000)
+
+            return () => clearInterval(interval)
+        }
+    }, [ride, navigate])
 
 
     const handlePickupChange = async (e) => {
@@ -114,7 +148,7 @@ const Home = () => {
                 opacity: 0
             })
         }
-    }, [ panelOpen ])
+    }, [panelOpen])
 
 
     useGSAP(function () {
@@ -127,7 +161,7 @@ const Home = () => {
                 transform: 'translateY(100%)'
             })
         }
-    }, [ vehiclePanel ])
+    }, [vehiclePanel])
 
     useGSAP(function () {
         if (confirmRidePanel) {
@@ -139,7 +173,7 @@ const Home = () => {
                 transform: 'translateY(100%)'
             })
         }
-    }, [ confirmRidePanel ])
+    }, [confirmRidePanel])
 
     useGSAP(function () {
         if (vehicleFound) {
@@ -151,7 +185,7 @@ const Home = () => {
                 transform: 'translateY(100%)'
             })
         }
-    }, [ vehicleFound ])
+    }, [vehicleFound])
 
     useGSAP(function () {
         if (waitingForDriver) {
@@ -163,7 +197,7 @@ const Home = () => {
                 transform: 'translateY(100%)'
             })
         }
-    }, [ waitingForDriver ])
+    }, [waitingForDriver])
 
 
     async function findTrip() {
@@ -194,7 +228,7 @@ const Home = () => {
             }
         })
 
-
+        setRide(response.data)
     }
 
     return (
