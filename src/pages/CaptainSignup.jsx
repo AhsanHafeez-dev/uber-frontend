@@ -36,7 +36,9 @@ const CaptainSignup = () => {
         plate: vehiclePlate,
         capacity: vehicleCapacity,
         vehicleType: vehicleType
-      }
+      },
+      earned: 0,
+      hoursOnline:0,
     }
 
     const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/captains/register`, captainData)
@@ -59,7 +61,7 @@ const CaptainSignup = () => {
 
   }
   return (
-    <div className='py-5 px-5 h-screen flex flex-col justify-between'>
+    <div className='flex flex-col justify-between h-screen px-5 py-5'>
       <div>
         <img className='w-20 mb-3' src="https://www.svgrepo.com/show/505031/uber-driver.svg" alt="" />
 
@@ -67,7 +69,7 @@ const CaptainSignup = () => {
           submitHandler(e)
         }}>
 
-          <h3 className='text-lg w-full  font-medium mb-2'>What's our Captain's name</h3>
+          <h3 className='w-full mb-2 text-lg font-medium'>What's our Captain's name</h3>
           <div className='flex gap-4 mb-7'>
             <input
               required
@@ -91,7 +93,7 @@ const CaptainSignup = () => {
             />
           </div>
 
-          <h3 className='text-lg font-medium mb-2'>What's our Captain's email</h3>
+          <h3 className='mb-2 text-lg font-medium'>What's our Captain's email</h3>
           <input
             required
             value={email}
@@ -103,7 +105,7 @@ const CaptainSignup = () => {
             placeholder='email@example.com'
           />
 
-          <h3 className='text-lg font-medium mb-2'>Enter Password</h3>
+          <h3 className='mb-2 text-lg font-medium'>Enter Password</h3>
 
           <input
             className='bg-[#eeeeee] mb-7 rounded-lg px-4 py-2 border w-full text-lg placeholder:text-base'
@@ -115,7 +117,7 @@ const CaptainSignup = () => {
             placeholder='password'
           />
 
-          <h3 className='text-lg font-medium mb-2'>Vehicle Information</h3>
+          <h3 className='mb-2 text-lg font-medium'>Vehicle Information</h3>
           <div className='flex gap-4 mb-7'>
             <input
               required

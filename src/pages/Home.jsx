@@ -232,17 +232,17 @@ const Home = () => {
     }
 
     return (
-        <div className='h-screen relative overflow-hidden'>
-            <img className='w-16 absolute left-5 top-5' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="" />
-            <div className='h-screen w-screen'>
+        <div className='relative h-screen overflow-hidden'>
+            <img className='absolute w-16 left-5 top-5' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="" />
+            <div className='w-screen h-screen'>
                 {/* image for temporary use  */}
                 <LiveTracking />
             </div>
-            <div className=' flex flex-col justify-end h-screen absolute top-0 w-full'>
+            <div className='absolute top-0 flex flex-col justify-end w-full h-screen '>
                 <div className='h-[30%] p-6 bg-white relative'>
                     <h5 ref={panelCloseRef} onClick={() => {
                         setPanelOpen(false)
-                    }} className='absolute opacity-0 right-6 top-6 text-2xl'>
+                    }} className='absolute text-2xl opacity-0 right-6 top-6'>
                         <i className="ri-arrow-down-wide-line"></i>
                     </h5>
                     <h4 className='text-2xl font-semibold'>Find a trip</h4>
@@ -274,11 +274,11 @@ const Home = () => {
                     </form>
                     <button
                         onClick={findTrip}
-                        className='bg-black text-white px-4 py-2 rounded-lg mt-3 w-full'>
+                        className='w-full px-4 py-2 mt-3 text-white bg-black rounded-lg'>
                         Find Trip
                     </button>
                 </div>
-                <div ref={panelRef} className='bg-white h-0'>
+                <div ref={panelRef} className='h-0 bg-white'>
                     <LocationSearchPanel
                         suggestions={activeField === 'pickup' ? pickupSuggestions : destinationSuggestions}
                         setPanelOpen={setPanelOpen}
@@ -289,12 +289,12 @@ const Home = () => {
                     />
                 </div>
             </div>
-            <div ref={vehiclePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
+            <div ref={vehiclePanelRef} className='fixed bottom-0 z-10 w-full px-3 py-10 pt-12 translate-y-full bg-white'>
                 <VehiclePanel
                     selectVehicle={setVehicleType}
                     fare={fare} setConfirmRidePanel={setConfirmRidePanel} setVehiclePanel={setVehiclePanel} />
             </div>
-            <div ref={confirmRidePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
+            <div ref={confirmRidePanelRef} className='fixed bottom-0 z-10 w-full px-3 py-6 pt-12 translate-y-full bg-white'>
                 <ConfirmRide
                     createRide={createRide}
                     pickup={pickup}
@@ -304,7 +304,7 @@ const Home = () => {
 
                     setConfirmRidePanel={setConfirmRidePanel} setVehicleFound={setVehicleFound} />
             </div>
-            <div ref={vehicleFoundRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
+            <div ref={vehicleFoundRef} className='fixed bottom-0 z-10 w-full px-3 py-6 pt-12 translate-y-full bg-white'>
                 <LookingForDriver
                     createRide={createRide}
                     pickup={pickup}
@@ -313,7 +313,7 @@ const Home = () => {
                     vehicleType={vehicleType}
                     setVehicleFound={setVehicleFound} />
             </div>
-            <div ref={waitingForDriverRef} className='fixed w-full  z-10 bottom-0  bg-white px-3 py-6 pt-12'>
+            <div ref={waitingForDriverRef} className='fixed bottom-0 z-10 w-full px-3 py-6 pt-12 bg-white'>
                 <WaitingForDriver
                     ride={ride}
                     setVehicleFound={setVehicleFound}
