@@ -4,7 +4,9 @@ import { CaptainDataContext } from '../context/CapatainContext'
 
 const CaptainDetails = () => {
 
-    const { captain } = useContext(CaptainDataContext)
+    const { captain } = useContext(CaptainDataContext);
+    console.log("captain",captain);
+    
 
     return (
         <div>
@@ -14,24 +16,24 @@ const CaptainDetails = () => {
                     <h4 className='text-lg font-medium capitalize'>{captain.fullname.firstname + " " + captain.fullname.lastname}</h4>
                 </div>
                 <div>
-                    <h4 className='text-xl font-semibold'>{  captain.earned ||"₹295.20"}</h4>
+                    <h4 className='text-xl font-semibold'>{  captain.earned }</h4>
                     <p className='text-sm text-gray-600'>Earned</p>
                 </div>
             </div>
             <div className='flex items-start justify-center gap-5 p-3 mt-8 bg-gray-100 rounded-xl'>
                 <div className='text-center'>
                     <i className="mb-2 text-3xl font-thin ri-timer-2-line"></i>
-                    <h5 className='text-lg font-medium'>{captain.hoursOnline || 10.2}</h5>
+                    <h5 className='text-lg font-medium'>{captain.hoursOnline }</h5>
                     <p className='text-sm text-gray-600'>Hours Online</p>
                 </div>
                 <div className='text-center'>
                     <i className="mb-2 text-3xl font-thin ri-speed-up-line"></i>
-                    <h5 className='text-lg font-medium'>{captain.hoursOnline || 10.2}</h5>
+                    <h5 className='text-lg font-medium'>{captain.hoursOnline }</h5>
                     <p className='text-sm text-gray-600'>Hours Online</p>
                 </div>
                 <div className='text-center'>
                     <i className="mb-2 text-3xl font-thin ri-booklet-line"></i>
-                    <h5 className='text-lg font-medium'>{captain.hoursOnline || 10.2}</h5>
+                    <h5 className='text-lg font-medium'>{captain.hoursOnline }</h5>
                     <p className='text-sm text-gray-600'>Hours Online</p>
                 </div>
 
